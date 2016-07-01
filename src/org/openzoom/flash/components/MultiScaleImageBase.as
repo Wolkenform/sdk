@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////////
 //
 //  OpenZoom SDK
 //
@@ -17,7 +17,7 @@
 //  The Original Code is the OpenZoom SDK.
 //
 //  The Initial Developer of the Original Code is Daniel Gasienica.
-//  Portions created by the Initial Developer are Copyright (c) 2007-2009
+//  Portions created by the Initial Developer are Copyright (c) 2007-2010
 //  the Initial Developer. All Rights Reserved.
 //
 //  Contributor(s):
@@ -65,7 +65,7 @@ internal class MultiScaleImageBase extends Sprite
                                               ILoaderClient,
                                               IDisposable
 {
-	include "../core/Version.as"
+    include "../core/Version.as"
 
     //--------------------------------------------------------------------------
     //
@@ -300,16 +300,16 @@ internal class MultiScaleImageBase extends Sprite
     //----------------------------------
     //  contextMenu
     //----------------------------------
-
-    override public function get contextMenu():ContextMenu
-    {
-        return container.contextMenu
-    }
-
-    override public function set contextMenu(value:ContextMenu):void
-    {
-        container.contextMenu = value
-    }
+//
+//    override public function get contextMenu():NativeMenu
+//    {
+//        return container.contextMenu
+//    }
+//
+//    override public function set contextMenu(value:NativeMenu):void
+//    {
+//        container.contextMenu = value
+//    }
 
     //--------------------------------------------------------------------------
     //
@@ -552,13 +552,13 @@ internal class MultiScaleImageBase extends Sprite
     //  Methods: IDisposable
     //
     //--------------------------------------------------------------------------
-    
+
     public function dispose():void
     {
-    	container.dispose()
-    	container = null
-    	
-    	loader = null
+        container.dispose()
+        container = null
+
+        loader = null
     }
 }
 

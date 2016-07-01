@@ -17,7 +17,7 @@
 //  The Original Code is the OpenZoom SDK.
 //
 //  The Initial Developer of the Original Code is Daniel Gasienica.
-//  Portions created by the Initial Developer are Copyright (c) 2007-2009
+//  Portions created by the Initial Developer are Copyright (c) 2007-2010
 //  the Initial Developer. All Rights Reserved.
 //
 //  Contributor(s):
@@ -61,7 +61,7 @@ use namespace openzoom_internal;
 public class SmoothTransformer extends ViewportTransformerBase
                                implements IViewportTransformer
 {
-	include "../../core/Version.as"
+    include "../../core/Version.as"
 
     //--------------------------------------------------------------------------
     //
@@ -367,12 +367,12 @@ public class SmoothTransformer extends ViewportTransformerBase
 
     override public function dispose():void
     {
-    	
+
         if (viewport && external)
             viewport.removeEventListener(ViewportEvent.TARGET_UPDATE,
                                          viewport_targetUpdateHandler)
 
-    	super.dispose()
+        super.dispose()
     }
 }
 

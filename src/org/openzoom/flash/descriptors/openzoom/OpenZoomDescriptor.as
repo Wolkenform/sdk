@@ -17,7 +17,7 @@
 //  The Original Code is the OpenZoom SDK.
 //
 //  The Initial Developer of the Original Code is Daniel Gasienica.
-//  Portions created by the Initial Developer are Copyright (c) 2007-2009
+//  Portions created by the Initial Developer are Copyright (c) 2007-2010
 //  the Initial Developer. All Rights Reserved.
 //
 //  Contributor(s):
@@ -57,7 +57,7 @@ use namespace openzoom_internal;
 public final class OpenZoomDescriptor extends ImagePyramidDescriptorBase
                                       implements IImagePyramidDescriptor
 {
-	include "../../core/Version.as"
+    include "../../core/Version.as"
 
     //--------------------------------------------------------------------------
     //
@@ -76,13 +76,12 @@ public final class OpenZoomDescriptor extends ImagePyramidDescriptorBase
     /**
      * Constructor.
      */
-    public function OpenZoomDescriptor(uri:String, data:XML)
+    public function OpenZoomDescriptor(source:String, data:XML)
     {
         use namespace openzoom
 
+        this.source = source
         this.data = data
-
-        this.source = uri
         parseXML(data)
     }
 

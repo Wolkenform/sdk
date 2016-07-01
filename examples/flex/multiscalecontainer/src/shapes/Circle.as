@@ -17,7 +17,7 @@
 //  The Original Code is the OpenZoom SDK.
 //
 //  The Initial Developer of the Original Code is Daniel Gasienica.
-//  Portions created by the Initial Developer are Copyright (c) 2007-2009
+//  Portions created by the Initial Developer are Copyright (c) 2007-2010
 //  the Initial Developer. All Rights Reserved.
 //
 //  Contributor(s):
@@ -40,7 +40,7 @@ package shapes
 {
 
 import flash.display.Graphics;
-import flash.display.Sprite;    
+import flash.display.Sprite;
 
 public class Circle extends Sprite
 {

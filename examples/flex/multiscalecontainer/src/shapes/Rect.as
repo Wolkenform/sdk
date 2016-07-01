@@ -17,7 +17,7 @@
 //  The Original Code is the OpenZoom SDK.
 //
 //  The Initial Developer of the Original Code is Daniel Gasienica.
-//  Portions created by the Initial Developer are Copyright (c) 2007-2009
+//  Portions created by the Initial Developer are Copyright (c) 2007-2010
 //  the Initial Developer. All Rights Reserved.
 //
 //  Contributor(s):
@@ -48,19 +48,19 @@ public class Rect extends UIComponent
     public function Rect()
     {
     }
-    
+
     private var _color:uint = 0xFF6600;
-    
+
     [Bindable]
     public function get color():uint
     {
     	return _color
     }
-    
+
     public function set color(value:uint):void
     {
     }
-    
+
     override protected function updateDisplayList(unscaledWidth:Number,
                                                   unscaledHeight:Number):void
     {

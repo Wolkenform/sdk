@@ -17,7 +17,7 @@
 //  The Original Code is the OpenZoom SDK.
 //
 //  The Initial Developer of the Original Code is Daniel Gasienica.
-//  Portions created by the Initial Developer are Copyright (c) 2007-2009
+//  Portions created by the Initial Developer are Copyright (c) 2007-2010
 //  the Initial Developer. All Rights Reserved.
 //
 //  Contributor(s):
@@ -54,10 +54,10 @@ use namespace openzoom_internal;
  * Descriptor for the <a href="http://www.zoomify.com/">Zoomify</a>
  * multiscale image format.
  */
-public class ZoomifyDescriptor extends ImagePyramidDescriptorBase
-                               implements IImagePyramidDescriptor
+public final class ZoomifyDescriptor extends ImagePyramidDescriptorBase
+                                     implements IImagePyramidDescriptor
 {
-	include "../../core/Version.as"
+    include "../../core/Version.as"
 
     //--------------------------------------------------------------------------
     //
@@ -100,7 +100,7 @@ public class ZoomifyDescriptor extends ImagePyramidDescriptorBase
         _type = DEFAULT_TYPE
         format = DEFAULT_TILE_FORMAT
 
-        _numLevels = computeNumLevels(width, height, tileWidth, tileHeight)
+        _numLevels = getNumLevels(width, height, tileSize)
         createLevels(width, height, tileSize, numLevels)
         tileCountUpToLevel = computeLevelTileCounts(numLevels)
     }
@@ -222,19 +222,10 @@ public class ZoomifyDescriptor extends ImagePyramidDescriptorBase
     /**
      * @private
      */
-    private function computeNumLevels(width:uint, height:uint,
-                                      tileWidth:uint, tileHeight:uint):uint
+    private function getNumLevels(width:uint, height:uint, tileSize:uint):uint
     {
-        var numLevels:uint = 1
-
-        while (width > tileWidth || height > tileHeight)
-        {
-            width = Math.ceil(width / 2)
-            height = Math.ceil(height / 2)
-            numLevels++
-        }
-
-        return numLevels
+        // How many levels until image fits into a single tile
+        return Math.ceil(Math.log(Math.ceil(Math.max(width, height) / tileSize))/Math.LN2) + 1
     }
 
     /**
@@ -310,8 +301,13 @@ public class ZoomifyDescriptor extends ImagePyramidDescriptorBase
     {
         var size:Point = new Point()
         var scale:Number = getScale(level)
-        size.x = Math.ceil(width * scale)
-        size.y = Math.ceil(height * scale)
+        // Verified that Zoomify levels (tiers) logic uses
+        // divide by two (2) followed by floor both with
+        // official Zoomify Express converter as well as
+        // the open source ZoomifyImage project which
+        // uses Python integer division.
+        size.x = Math.floor(width * scale)
+        size.y = Math.floor(height * scale)
 
         return size
     }

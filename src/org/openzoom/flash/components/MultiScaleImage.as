@@ -17,7 +17,7 @@
 //  The Original Code is the OpenZoom SDK.
 //
 //  The Initial Developer of the Original Code is Daniel Gasienica.
-//  Portions created by the Initial Developer are Copyright (c) 2007-2009
+//  Portions created by the Initial Developer are Copyright (c) 2007-2010
 //  the Initial Developer. All Rights Reserved.
 //
 //  Contributor(s):
@@ -49,7 +49,6 @@ import org.openzoom.flash.core.openzoom_internal;
 import org.openzoom.flash.descriptors.IImagePyramidDescriptor;
 import org.openzoom.flash.descriptors.ImagePyramidDescriptorFactory;
 import org.openzoom.flash.renderers.images.ImagePyramidRenderer;
-import org.openzoom.flash.utils.uri.resolveURI;
 
 use namespace openzoom_internal;
 
@@ -85,7 +84,7 @@ use namespace openzoom_internal;
  */
 public final class MultiScaleImage extends MultiScaleImageBase
 {
-	include "../core/Version.as"
+    include "../core/Version.as"
 
     //--------------------------------------------------------------------------
     //
@@ -147,8 +146,9 @@ public final class MultiScaleImage extends MultiScaleImageBase
 
             url = String(value)
 
-            if (loaderInfo)
-                url = resolveURI(loaderInfo.url, String(value))
+            // TODO What was this trying to solve?
+//          if (loaderInfo)
+//              url = resolveURI(loaderInfo.url, String(value))
 
             urlLoader = new URLLoader(new URLRequest(url))
 
@@ -162,7 +162,7 @@ public final class MultiScaleImage extends MultiScaleImageBase
                                        urlLoader_securityErrorHandler,
                                        false, 0, true )
         }
-        
+
         if (_source)
         {
             _source = null
@@ -275,24 +275,24 @@ public final class MultiScaleImage extends MultiScaleImageBase
     //  Methods: IDisposable
     //
     //--------------------------------------------------------------------------
-    
+
     override public function dispose():void
     {
-    	image.dispose()
-    	image = null
-    	
-    	try
-    	{
-	    	urlLoader.close()
-    	}
-    	catch(error:Error)
-    	{
-    		// Do nothing
-    	}
-    	
-    	urlLoader = null
-    	
-    	super.dispose()
+        image.dispose()
+        image = null
+
+        try
+        {
+            urlLoader.close()
+        }
+        catch(error:Error)
+        {
+            // Do nothing
+        }
+
+        urlLoader = null
+
+        super.dispose()
     }
 }
 

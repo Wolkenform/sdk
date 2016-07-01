@@ -17,7 +17,7 @@
 //  The Original Code is the OpenZoom SDK.
 //
 //  The Initial Developer of the Original Code is Daniel Gasienica.
-//  Portions created by the Initial Developer are Copyright (c) 2007-2009
+//  Portions created by the Initial Developer are Copyright (c) 2007-2010
 //  the Initial Developer. All Rights Reserved.
 //
 //  Contributor(s):
@@ -50,14 +50,14 @@ use namespace openzoom_internal;
 
 /**
  * @private
- * 
+ *
  * Descriptor for the
  * <a href="http://msdn.microsoft.com/en-us/library/cc645077(VS.95).aspx">
  * Microsoft Deep Zoom Collection (DZC) format</a>.
  */
 public final class DeepZoomCollectionDescriptor
 {
-	include "../../core/Version.as"
+    include "../../core/Version.as"
 
     //--------------------------------------------------------------------------
     //
@@ -186,7 +186,7 @@ public final class DeepZoomCollectionDescriptor
         var basePath:String = source.substring(0, source.lastIndexOf("."))
         var path:String = basePath + "_files"
 
-        var position:Point = MortonOrder.getPosition(mortonNumber)
+        var position:Point = MortonOrder.getPoint(mortonNumber)
         var size:uint = Math.pow(2, level)
         var column:int = Math.floor((position.x * size) / tileSize)
         var row:int = Math.floor((position.y * size) / tileSize)
@@ -253,8 +253,9 @@ public final class DeepZoomCollectionDescriptor
 
 }
 
-import flash.geom.Rectangle
-import org.openzoom.flash.utils.uri.resolveURI
+import flash.geom.Rectangle;
+
+import org.openzoom.flash.utils.uri.resolveURI;
 
 //------------------------------------------------------------------------------
 //

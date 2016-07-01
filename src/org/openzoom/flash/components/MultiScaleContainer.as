@@ -17,7 +17,7 @@
 //  The Original Code is the OpenZoom SDK.
 //
 //  The Initial Developer of the Original Code is Daniel Gasienica.
-//  Portions created by the Initial Developer are Copyright (c) 2007-2009
+//  Portions created by the Initial Developer are Copyright (c) 2007-2010
 //  the Initial Developer. All Rights Reserved.
 //
 //  Contributor(s):
@@ -74,7 +74,7 @@ public final class MultiScaleContainer extends Sprite
                                        implements ILoaderClient,
                                                   IDisposable
 {
-	include "../core/Version.as"
+    include "../core/Version.as"
 
     //--------------------------------------------------------------------------
     //
@@ -810,36 +810,36 @@ public final class MultiScaleContainer extends Sprite
     //  Methods: IDisposable
     //
     //--------------------------------------------------------------------------
-    
+
     public function dispose():void
     {
         removeEventListener(Event.ENTER_FRAME,
                             enterFrameHandler)
 
-    	_transformer = null
-    	controllers = []
-    	_constraint = null
-    	
-    	while (super.numChildren > 0)
-    	   super.removeChildAt(0)
+        _transformer = null
+        controllers = []
+        _constraint = null
+
+        while (super.numChildren > 0)
+           super.removeChildAt(0)
 
         mouseCatcher = null
         contentMask = null
-                            
+
         _viewport.removeEventListener(ViewportEvent.TRANSFORM_START,
                                       viewport_transformStartHandler)
         _viewport.removeEventListener(ViewportEvent.TRANSFORM_UPDATE,
                                       viewport_transformUpdateHandler)
         _viewport.removeEventListener(ViewportEvent.TRANSFORM_END,
                                       viewport_transformEndHandler)
-    	_viewport.dispose()
-    	_viewport = null
-    	
-    	_scene.dispose()
-    	_scene = null
-    	
-    	_loader.dispose()
-    	_loader = null
+        _viewport.dispose()
+        _viewport = null
+
+        _scene.dispose()
+        _scene = null
+
+        _loader.dispose()
+        _loader = null
     }
 }
 

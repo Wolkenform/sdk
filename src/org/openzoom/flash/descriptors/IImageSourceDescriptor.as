@@ -17,7 +17,7 @@
 //  The Original Code is the OpenZoom SDK.
 //
 //  The Initial Developer of the Original Code is Daniel Gasienica.
-//  Portions created by the Initial Developer are Copyright (c) 2007-2009
+//  Portions created by the Initial Developer are Copyright (c) 2007-2010
 //  the Initial Developer. All Rights Reserved.
 //
 //  Contributor(s):
@@ -82,7 +82,7 @@ public interface IImageSourceDescriptor
     //----------------------------------
 
     /**
-     * Mime-type of the image source.
+     * MIME-type of the image source.
      */
     function get type():String
 

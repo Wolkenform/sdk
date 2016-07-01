@@ -17,7 +17,7 @@
 //  The Original Code is the OpenZoom SDK.
 //
 //  The Initial Developer of the Original Code is Daniel Gasienica.
-//  Portions created by the Initial Developer are Copyright (c) 2007-2009
+//  Portions created by the Initial Developer are Copyright (c) 2007-2010
 //  the Initial Developer. All Rights Reserved.
 //
 //  Contributor(s):
@@ -47,6 +47,8 @@ import flash.events.Event;
 import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.geom.Rectangle;
+import flash.system.Capabilities;
+import flash.system.System;
 import flash.utils.getTimer;
 
 import org.openzoom.flash.core.openzoom_internal;
@@ -72,7 +74,7 @@ use namespace openzoom_internal;
  */
 public final class ImagePyramidRenderManager implements IDisposable
 {
-	include "../../core/Version.as"
+    include "../../core/Version.as"
 
     //--------------------------------------------------------------------------
     //
@@ -80,12 +82,19 @@ public final class ImagePyramidRenderManager implements IDisposable
     //
     //--------------------------------------------------------------------------
 
-    private static const TILE_SHOW_DURATION:Number = 500 // milliseconds
+    private static const TILE_BLEND_DURATION:Number = 500 // milliseconds
 
-    private static const MAX_CACHE_SIZE:uint = 140
+    private static const MAX_CACHE_SIZE:uint = 180
 
     private static const MAX_DOWNLOADS_STATIC:uint = 4
     private static const MAX_DOWNLOADS_DYNAMIC:uint = 2
+
+    // Experimental
+    private static const LEVEL_BLENDING_ENABLED:Boolean = false
+
+    private static const PRE_FLASH_10_FRAME_EVENT_NAME:String = "enterFrame"
+    private static const POST_FLASH_10_FRAME_EVENT_NAME:String = "exitFrame"
+    private var frameEventName:String = PRE_FLASH_10_FRAME_EVENT_NAME
 
     //--------------------------------------------------------------------------
     //
@@ -101,6 +110,11 @@ public final class ImagePyramidRenderManager implements IDisposable
                                               viewport:INormalizedViewport,
                                               loader:INetworkQueue)
     {
+        // FIXME
+//        var playerMajorVersion:int = parseInt(Capabilities.version.split(" ")[1].toString().split(",")[0])
+//        if (playerMajorVersion >= 10)
+//            frameEventName = POST_FLASH_10_FRAME_EVENT_NAME
+
         this.owner = owner
         this.scene = scene
         this.viewport = viewport
@@ -168,8 +182,13 @@ public final class ImagePyramidRenderManager implements IDisposable
         {
             invalidateDisplayListFlag = false
 
-            for each (var renderer:ImagePyramidRenderer in renderers)
-                updateDisplayList(renderer)
+            // FIXME Test performance
+            var length:int = renderers.length
+            for (var i:int = 0; i < length; i++)
+                updateDisplayList(renderers[i])
+
+//            for each (var renderer:ImagePyramidRenderer in renderers)
+//                updateDisplayList(renderer)
         }
     }
 
@@ -201,12 +220,18 @@ public final class ImagePyramidRenderManager implements IDisposable
         if (!viewport)
             return
 
-        // Compute normalized scene bounds of renderer
+        // Cache scene dimensions
+        var sceneWidth:Number = scene.sceneWidth
+        var sceneHeight:Number = scene.sceneHeight
+
+        // Get scene bounds of renderer
         var sceneBounds:Rectangle = renderer.getBounds(scene.targetCoordinateSpace)
-            sceneBounds.x /= scene.sceneWidth
-            sceneBounds.y /= scene.sceneHeight
-            sceneBounds.width /= scene.sceneWidth
-            sceneBounds.height /= scene.sceneHeight
+
+        // Normalize scene bounds
+        sceneBounds.x /= sceneWidth
+        sceneBounds.y /= sceneHeight
+        sceneBounds.width /= sceneWidth
+        sceneBounds.height /= sceneHeight
 
         // Visibility test
         var visible:Boolean = viewport.intersects(sceneBounds)
@@ -214,23 +239,32 @@ public final class ImagePyramidRenderManager implements IDisposable
         if (!visible)
             return
 
+        // Cache scene bounds dimensions
+        var sceneBoundsWidth:Number = sceneBounds.width
+        var sceneBoundsHeight:Number = sceneBounds.height
+
         // Get viewport bounds (normalized)
         var viewportBounds:Rectangle = viewport.getBounds()
 
         // Compute normalized visible bounds in renderer coordinate system
         var localBounds:Rectangle = sceneBounds.intersection(viewportBounds)
         localBounds.offset(-sceneBounds.x, -sceneBounds.y)
-        localBounds.x /= sceneBounds.width
-        localBounds.y /= sceneBounds.height
-        localBounds.width /= sceneBounds.width
-        localBounds.height /= sceneBounds.height
+        localBounds.x /= sceneBoundsWidth
+        localBounds.y /= sceneBoundsHeight
+        localBounds.width /= sceneBoundsWidth
+        localBounds.height /= sceneBoundsHeight
+
+        // Determine stage bounds
+        var stageBounds:Rectangle = renderer.getBounds(renderer.stage)
+        var stageBoundsWidth:Number = stageBounds.width
+        var stageBoundsHeight:Number = stageBounds.height
 
         // Determine optimal level
-        var stageBounds:Rectangle = renderer.getBounds(renderer.stage)
-        var optimalLevel:IImagePyramidLevel = descriptor.getLevelForSize(stageBounds.width,
-                                                                         stageBounds.height)
+        var optimalLevel:IImagePyramidLevel =
+                descriptor.getLevelForSize(stageBoundsWidth,
+                                           stageBoundsHeight)
 
-        // Render image pyramid from bottom up
+        // Render image pyramid from bottom up (painter's algorithm)
         var currentTime:int = getTimer()
 
         var toLevel:int
@@ -249,11 +283,21 @@ public final class ImagePyramidRenderManager implements IDisposable
             var done:Boolean = true
             level = descriptor.getLevelAt(l)
 
+            // Cache level dimensions
+            var levelWidth:Number = level.width
+            var levelHeight:Number = level.height
+
+            // FIXME Level blending
+            var    levelAlpha:Number = 1
+
+//            if (LEVEL_BLENDING_ENABLED)
+//                levelAlpha = Math.min(1.0, (stageBoundsWidth / levelWidth - 0.5) * 2)
+
             // Load or draw visible tiles
-            var fromPoint:Point = new Point(localBounds.left * level.width,
-                                            localBounds.top * level.height)
-            var toPoint:Point = new Point(localBounds.right * level.width,
-                                          localBounds.bottom * level.height)
+            var fromPoint:Point = new Point(localBounds.left * levelWidth,
+                                            localBounds.top * levelHeight)
+            var toPoint:Point = new Point(localBounds.right * levelWidth,
+                                          localBounds.bottom * levelHeight)
             var fromTile:Point = descriptor.getTileAtPoint(l, fromPoint)
             var toTile:Point = descriptor.getTileAtPoint(l, toPoint)
 
@@ -268,7 +312,8 @@ public final class ImagePyramidRenderManager implements IDisposable
                 // Iterate over rows
                 for (var r:int = fromTile.y; r <= toTile.y; r++)
                 {
-                    var tile:ImagePyramidTile = renderer.openzoom_internal::getTile(l, c, r)
+                    var tile:ImagePyramidTile =
+                            renderer.openzoom_internal::getTile(l, c, r)
 
                     if (!tile)
                        continue
@@ -298,14 +343,15 @@ public final class ImagePyramidRenderManager implements IDisposable
                     }
 
                     // Prepare alpha bitmap
-                    if (tile.fadeStart == 0)
-                        tile.fadeStart = currentTime
+                    if (tile.blendStartTime == 0)
+                        tile.blendStartTime = currentTime
 
                     tile.source.lastAccessTime = currentTime
 
-                    var duration:Number = TILE_SHOW_DURATION
-                    var currentAlpha:Number = (currentTime - tile.fadeStart) / duration
-                    tile.alpha = Math.min(1, currentAlpha)
+                    var duration:Number = TILE_BLEND_DURATION
+                    var currentAlpha:Number = (currentTime - tile.blendStartTime) / duration
+                    var tileAlpha:Number = currentAlpha
+                    tile.alpha = Math.min(1, currentAlpha) * levelAlpha
 
                     if (tile.alpha < 1)
                         done = false
@@ -344,13 +390,10 @@ public final class ImagePyramidRenderManager implements IDisposable
             if (tile.alpha < 1)
             {
                 invalidateDisplayList()
-
                 textureMap = new BitmapData(tile.bitmapData.width,
                                             tile.bitmapData.height)
-
                 var alphaMultiplier:uint = (tile.alpha * 256) << 24
                 var alphaMap:BitmapData
-
                 alphaMap = new BitmapData(tile.bitmapData.width,
                                           tile.bitmapData.height,
                                           true,
@@ -363,7 +406,6 @@ public final class ImagePyramidRenderManager implements IDisposable
             }
             else
             {
-
                 textureMap = tile.bitmapData
             }
 
@@ -380,7 +422,7 @@ public final class ImagePyramidRenderManager implements IDisposable
             {
                 // Deep Zoom collection
                 var levelSize:uint = 1 << tile.level
-                var position:Point = MortonOrder.getPosition(dziDescriptor.mortonNumber)
+                var position:Point = MortonOrder.getPoint(dziDescriptor.mortonNumber)
                 var tileSize:uint = dziDescriptor.collection.tileSize
                 var offsetX:uint = (position.x * levelSize) % tileSize
                 var offsetY:uint = (position.y * levelSize) % tileSize
@@ -401,7 +443,7 @@ public final class ImagePyramidRenderManager implements IDisposable
             g.beginBitmapFill(textureMap,
                               matrix,
                               false, /* repeat */
-                              true /* smoothing */)
+                              true   /* smoothing */)
             g.drawRect(tile.bounds.x * sx,
                        tile.bounds.y * sy,
                        tile.bounds.width * sx,
@@ -421,7 +463,7 @@ public final class ImagePyramidRenderManager implements IDisposable
     /**
      * @private
      */
-    private function enterFrameHandler(event:Event):void
+    private function frameHandler(event:Event):void
     {
         // Rendering loop
         validateDisplayList()
@@ -472,8 +514,8 @@ public final class ImagePyramidRenderManager implements IDisposable
                                     "Renderer already added.")
 
         if (renderers.length == 0)
-            owner.addEventListener(Event.ENTER_FRAME,
-                                   enterFrameHandler,
+            owner.addEventListener(frameEventName,
+                                   frameHandler,
                                    false, 0, true)
 
         renderers.push(renderer)
@@ -495,8 +537,8 @@ public final class ImagePyramidRenderManager implements IDisposable
         renderers.splice(index, 1)
 
         if (renderers.length == 0)
-            owner.removeEventListener(Event.ENTER_FRAME,
-                                      enterFrameHandler)
+            owner.removeEventListener(frameEventName,
+                                      frameHandler)
 
         return renderer
     }
@@ -511,8 +553,8 @@ public final class ImagePyramidRenderManager implements IDisposable
     public function dispose():void
     {
         // Remove render loop
-        owner.removeEventListener(Event.ENTER_FRAME,
-                                  enterFrameHandler)
+        owner.removeEventListener(frameEventName,
+                                  frameHandler)
 
         owner = null
         scene = null

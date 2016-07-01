@@ -17,7 +17,7 @@
 //  The Original Code is the OpenZoom SDK.
 //
 //  The Initial Developer of the Original Code is Daniel Gasienica.
-//  Portions created by the Initial Developer are Copyright (c) 2007-2009
+//  Portions created by the Initial Developer are Copyright (c) 2007-2010
 //  the Initial Developer. All Rights Reserved.
 //
 //  Contributor(s):
@@ -58,7 +58,7 @@ use namespace openzoom_internal;
 public final class NetworkQueue extends EventDispatcher
                                 implements INetworkQueue
 {
-	include "../core/Version.as"
+    include "../core/Version.as"
 
     //--------------------------------------------------------------------------
     //
@@ -119,7 +119,7 @@ public final class NetworkQueue extends EventDispatcher
 
         if (!request)
             throw new ArgumentError("Type " + type.toString() + " not supported.")
-            
+
         addEventListeners(request)
 
         // Add item to front (LIFO)
@@ -203,7 +203,7 @@ public final class NetworkQueue extends EventDispatcher
         progressEvent.bytesTotal = bytesTotal
         dispatchEvent(progressEvent)
     }
-    
+
     private function addEventListeners(request:INetworkRequest):void
     {
         request.addEventListener(ProgressEvent.PROGRESS,
@@ -213,7 +213,7 @@ public final class NetworkQueue extends EventDispatcher
         request.addEventListener(NetworkRequestEvent.ERROR,
                                  request_errorHandler)
     }
-    
+
     private function removeEventListeners(request:INetworkRequest):void
     {
         request.removeEventListener(ProgressEvent.PROGRESS,
@@ -229,27 +229,27 @@ public final class NetworkQueue extends EventDispatcher
     //  Methods: IDisposable
     //
     //--------------------------------------------------------------------------
-    
+
     public function dispose():void
     {
-    	var request:INetworkRequest
+        var request:INetworkRequest
         for each (request in queue)
         {
-        	removeEventListeners(request)
+            removeEventListeners(request)
             request.dispose()
         }
-        
+
         queue = []
-        
+
         for each (request in connections)
         {
-        	removeEventListeners(request)
+            removeEventListeners(request)
             request.dispose()
         }
-        
+
         connections = []
-            
-    }    
+
+    }
 }
 
 }
